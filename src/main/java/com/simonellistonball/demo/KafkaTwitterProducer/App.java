@@ -20,14 +20,10 @@ import org.apache.commons.cli.ParseException;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.log4j.Logger;
 
 import twitter4j.FilterQuery;
-import twitter4j.StallWarning;
-import twitter4j.Status;
-import twitter4j.StatusDeletionNotice;
 import twitter4j.StatusListener;
 import twitter4j.TwitterStream;
 import twitter4j.TwitterStreamFactory;
@@ -38,13 +34,15 @@ import twitter4j.TwitterStreamFactory;
  */
 public class App {
 	static final Logger log = Logger.getLogger(App.class);
-	private static final String TWITTER4J_PROPERTIES = "twitter4j.properties";;
+	private static final String TWITTER4J_PROPERTIES = "twitter4j.properties";
+	private static final String DEFAULT_TOPIC = "tweets";
 
 	public static void main(String[] args) {
 		CommandLine cmd;
 		String brokers = null;
 		String[] hashtags = null;
 		String twitterPropertiesFile = null;
+		String topic = null;
 
 		try {
 			cmd = setupCommandLine(args);
@@ -53,6 +51,7 @@ public class App {
 			String[] hashtagFileOption = cmd.getOptionValues("hashtag-file");
 			twitterPropertiesFile = cmd.getOptionValue("twitter-conf");
 			hashtags = processHashTags(hashtagOption, hashtagFileOption);
+			topic = cmd.getOptionValue("topic");
 		} catch (ParseException e) {
 			System.exit(1);
 		}
@@ -75,35 +74,11 @@ public class App {
 		final TwitterStream twitterStream = new TwitterStreamFactory(
 				twitterPropertiesFile).getInstance();
 
+		if (topic == null)
+			topic = DEFAULT_TOPIC;
+
 		// Listener that is invokes for each tweet matching the filter query
-		StatusListener listener = new StatusListener() {
-			public void onStatus(Status status) {
-				Tweet tweet = TwitterUtils.parseTweet(status);
-				ProducerRecord<String, Tweet> data = new ProducerRecord<String, Tweet>(
-						"tweets", tweet);
-				producer.send(data);
-			}
-
-			public void onDeletionNotice(
-					StatusDeletionNotice statusDeletionNotice) {
-			}
-
-			public void onTrackLimitationNotice(int numberOfLimitedStatuses) {
-			}
-
-			public void onException(Exception ex) {
-				log.error("Error from Twitter: ", ex);
-			}
-
-			public void onStallWarning(StallWarning warning) {
-				log.warn("Got stall warning:" + warning);
-			}
-
-			public void onScrubGeo(long userId, long upToStatusId) {
-				log.info("Got scrub_geo event userId:" + userId
-						+ " upToStatusId:" + upToStatusId);
-			}
-		};
+		StatusListener listener = new TweetToProducerListener(topic, producer);
 		twitterStream.addListener(listener);
 
 		// create a query to filter the tweets by hashtag and geolocation
@@ -204,10 +179,14 @@ public class App {
 
 		options.addOption(Option
 				.builder()
-				.argName("t")
+				.argName("c")
 				.hasArg()
 				.longOpt("twitter-conf")
 				.desc("Path to a twitter4j style properties file containing API keys (defaults to ./twitter4j.properties")
+				.build());
+
+		options.addOption(Option.builder().argName("t").hasArg()
+				.longOpt("topic").desc("Name of the topic to push tweets to")
 				.build());
 
 		CommandLineParser parser = new DefaultParser();

@@ -36,6 +36,7 @@ Run with the following:
          --hashtag-file <f>   Comma-separated list of Kafka brokers in
                               host:port pairs
          --hashtags <h>       Comma-separated list of hashtags to follow
+         --topic <t>          Name of the topic to push tweets to
          --twitter-conf <t>   Path to a twitter4j style properties file
                               containing API keys (defaults to
                               ./twitter4j.properties
