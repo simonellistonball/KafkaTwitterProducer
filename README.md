@@ -33,8 +33,8 @@ Run with the following:
     usage: App
          --brokers <b>        Comma-separated list of Kafka brokers in
                               host:port pairs
-         --hashtag-file <f>   Comma-separated list of Kafka brokers in
-                              host:port pairs
+         --hashtag-file <f>   File containing list of tags to follow, one 
+                              per line, optionally with a comma after them
          --hashtags <h>       Comma-separated list of hashtags to follow
          --topic <t>          Name of the topic to push tweets to
          --twitter-conf <t>   Path to a twitter4j style properties file

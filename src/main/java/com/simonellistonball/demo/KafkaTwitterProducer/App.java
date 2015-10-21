@@ -174,7 +174,7 @@ public class App {
 				.argName("f")
 				.hasArgs()
 				.longOpt("hashtag-file")
-				.desc("Comma-separated list of Kafka brokers in host:port pairs")
+				.desc("File containing list of tags to follow, one per line, optionally with a comma after them")
 				.build());
 
 		options.addOption(Option
