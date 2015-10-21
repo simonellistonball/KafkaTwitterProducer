@@ -1,4 +1,4 @@
-package com.hortonworks.demo.KafkaTwitterProducer;
+package com.simonellistonball.demo.KafkaTwitterProducer;
 
 import java.util.Map;
 
