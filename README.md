@@ -1,7 +1,7 @@
 Twitter Stream -> Kafka Producer
 ================================
 
-This is a quick tool to follow hash tags on twitter and push them into Kafka. 
+This is a quick tool to follow hash tags on twitter and push them into Kafka.
 
 
 Build instructions
@@ -13,14 +13,14 @@ Build instructions
 How to use
 ----------
 
-Create a twitter4j.properties file containing: 
+Create a twitter4j.properties file containing:
 
     oauth.consumerKey=
     oauth.consumerSecret=
     oauth.accessToken=
     oauth.accessTokenSecret=
 
-These values come from the [twitter API page](https://apps.twitter.com/). 
+These values come from the [twitter API page](https://apps.twitter.com/).
 
 The topic defaults to "tweets", so you will need to create that, e.g.:
 
@@ -33,11 +33,14 @@ Run with the following:
     usage: App
          --brokers <b>        Comma-separated list of Kafka brokers in
                               host:port pairs
-         --hashtag-file <f>   File containing list of tags to follow, one 
+         --hashtag-file <f>   File containing list of tags to follow, one
                               per line, optionally with a comma after them
          --hashtags <h>       Comma-separated list of hashtags to follow
          --topic <t>          Name of the topic to push tweets to
          --twitter-conf <t>   Path to a twitter4j style properties file
                               containing API keys (defaults to
                               ./twitter4j.properties
-                             
+
+To verify this is working you can watch the topic on the console with:
+
+    /usr/hdp/current/kafka-broker/bin/kafka-console-consumer.sh --topic tweets --from-beginning --zookeeper <zks>
